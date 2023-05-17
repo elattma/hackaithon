@@ -1,5 +1,5 @@
-import { OpenAIApi } from "openai";
 import { Action, ActionType, State } from "@/orchestrator/model";
+import { OpenAIApi } from "openai";
 
 // TODO: make this sequential instead of recursive
 export const traverseState = async (
@@ -16,12 +16,15 @@ export const traverseState = async (
   }
   switch (action?.type) {
     case ActionType.InputDimension:
+      // apply action to state
       // do stuff
       break;
     case ActionType.ConfirmFeature:
+      // apply action to state
       // do stuff
       break;
     case ActionType.ConfirmPRD:
+      // apply action to state
       // do stuff
       break;
   }

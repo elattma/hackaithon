@@ -1,8 +1,8 @@
 import { Agent } from "@/orchestrator/agent";
-import { Action, State } from "@/orchestrator/model";
+import { State } from "@/orchestrator/model";
 
 export class FeatureAgent extends Agent {
-  async act(state: State, action: Action): Promise<State> {
+  async act(state: State): Promise<State> {
     return Promise.resolve(state);
   }
 }
