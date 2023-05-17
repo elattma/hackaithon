@@ -1,6 +1,7 @@
 import { AgentType, State } from "@/orchestrator/model";
 import { OpenAIApi } from "openai";
 import { PrdAgent } from "./prd-agent";
+import { ResearchAgent } from "./research-agent";
 
 const encoder = new TextEncoder();
 
@@ -23,7 +24,9 @@ export async function* traverseState(api: OpenAIApi, state: State) {
 
   switch (state.next.agent) {
     case AgentType.RESEARCH:
-      // TODO: add research agent
+      const researchAgent = new ResearchAgent(api);
+      state.next = await researchAgent.act(state);
+      yield encoder.encode("Research Agent did something!");
       break;
     case AgentType.PRD:
       const prdAgent = new PrdAgent(api);
@@ -31,7 +34,8 @@ export async function* traverseState(api: OpenAIApi, state: State) {
       yield encoder.encode("PRD Agent did something!");
       break;
     case AgentType.TICKETEER:
-      // TODO: add ticketeer agent
+      const ticketeerAgent = new ResearchAgent(api);
+      state.next = await ticketeerAgent.act(state);
       yield encoder.encode("Ticketeer Agent did something!");
       break;
     case AgentType.END:

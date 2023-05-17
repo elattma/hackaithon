@@ -29,13 +29,20 @@ export type Next = {
   external_prompt?: ExternalPrompt;
 };
 
+export type Task = {
+  name?: string;
+  description?: string;
+  assignee?: string;
+  due_date?: string;
+};
+
 export type State = {
   input?: string;
   questions?: Question[];
   followUpQuestions?: Question[];
   features?: Feature[];
   prd?: string;
-  tasks?: string[];
+  tasks?: Task[];
   next?: Next;
 };
 
