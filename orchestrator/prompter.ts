@@ -3,11 +3,6 @@ import { Question } from "./model";
 const promptQuestionAnswer = (question: Question, prefix: string): string[] => {
   const { text, answer } = question;
   let questionAnswers = [`${prefix}Question: "${text}". Answer: "${answer}"`];
-  if (question?.followUpQuestions?.length) {
-    questionAnswers = questionAnswers.concat(
-      promptQuestionAnswer(question, `${prefix} `)
-    );
-  }
   return questionAnswers;
 };
 

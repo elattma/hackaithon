@@ -43,17 +43,20 @@ export class PrdAgent extends Agent {
       throw new Error("No questions found");
     }
 
-    const problem = state.problems?.[0];
-    const feature = problem?.feature;
-    const table = problem?.table;
+    // const problem = state.problems?.[0];
+    // const feature = problem?.feature;
+    // const table = problem?.table;
 
     const featurePrompt: ChatCompletionRequestMessage = {
       role: "system",
-      content: `The feature you must write this Product Requirements Document about is: ${feature}. 
-      Here is a table of information you previously learned about the feature: ${table}`,
+      content: "",
+      // content: `The feature you must write this Product Requirements Document about is: ${feature}.
+      // Here is a table of information you previously learned about the feature: ${table}`,
     };
 
-    const qaText = promptQuestionAnswers(questions);
+    const qaText = promptQuestionAnswers(
+      questions.concat(state.followUpQuestions ?? [])
+    );
     const qaPrompt: ChatCompletionRequestMessage = {
       role: "user",
       content: qaText,

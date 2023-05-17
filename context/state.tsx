@@ -26,7 +26,7 @@ export function StateProvider({ children }: StateProviderProps) {
 
 export function useStateContext() {
   const context = useContext(stateContext);
-  if (stateContext === undefined) {
+  if (context === undefined) {
     throw new Error("useStateContext must be used within a StateProvider");
   }
   return context;
