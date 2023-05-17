@@ -1,7 +1,12 @@
 export type Question = {
   text: string;
   answer?: string;
-  followUpQuestions?: Question[];
+  followUpQuestions?: FollowUpQuestion[];
+};
+
+export type FollowUpQuestion = {
+  text: string;
+  answer?: string;
 };
 
 export type Dimension = {
