@@ -1,4 +1,6 @@
+import { Action, State } from "@/orchestrator/model";
 import { traverseState } from "@/orchestrator/state-machine";
+import { NextResponse } from "next/server";
 import { Configuration, OpenAIApi } from "openai";
 
 const configuration = new Configuration({
@@ -22,7 +24,12 @@ function iteratorToStream(iterator: any) {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { state, action } = body;
+  const { state: rawState, action: rawAction } = body;
+  const state: State = rawState;
+  const action: Action = rawAction;
+  if (!openai || !state || !action) {
+    return NextResponse.error();
+  }
   const iterator = traverseState(openai, state, action);
   const stream = iteratorToStream(iterator);
   return new Response(stream);

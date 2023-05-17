@@ -1,14 +1,10 @@
 import { State } from "@/orchestrator/model";
-import { PineconeClient } from "@pinecone-database/pinecone";
 import { ChatCompletionRequestMessage, OpenAIApi } from "openai";
 
 export abstract class Agent {
   protected openai: OpenAIApi;
-  protected cache: PineconeClient;
-
-  constructor(openai: OpenAIApi, cache: PineconeClient) {
+  constructor(openai: OpenAIApi) {
     this.openai = openai;
-    this.cache = cache;
   }
 
   protected chat = async (params: {

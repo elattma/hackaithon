@@ -1,5 +1,6 @@
 import { Action, ActionType, State } from "@/orchestrator/model";
 import { OpenAIApi } from "openai";
+import { PrdAgent } from "./prd-agent";
 
 const encoder = new TextEncoder();
 
@@ -27,7 +28,10 @@ export async function* traverseState(
       // do stuff
       break;
     case ActionType.ConfirmPRD:
-      // apply action to state
+      const prdAgent = new PrdAgent(api);
+      state = await prdAgent.act(state);
+      yield encoder.encode(JSON.stringify(state));
+
       // do stuff
       break;
   }
