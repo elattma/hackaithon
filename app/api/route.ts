@@ -1,5 +1,5 @@
 import { ActionType } from "@/orchestrator/model";
-import { traverseState } from "@/orchestrator/stateMachine";
+import { traverseState } from "@/orchestrator/state-machine";
 import { NextResponse } from "next/server";
 import { Configuration, OpenAIApi } from "openai";
 
