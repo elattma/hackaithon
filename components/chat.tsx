@@ -3,17 +3,22 @@
 import { Messages } from "@/components/messages";
 import { useStateContext } from "@/context/state";
 import { State } from "@/orchestrator/model";
+import { useState } from "react";
 import { Button } from "./ui/button";
 
 const decoder = new TextDecoder();
 
+// TODO: add somewhere we can add a password
+
 export function Chat() {
   const context = useStateContext();
+  const [password, setPassword] = useState<string | undefined>(undefined);
   const callApi = async () => {
     const response = await fetch("http://localhost:3000/api", {
       method: "POST",
       body: JSON.stringify({
         state: context?.state,
+        password,
       }),
     });
     if (!response.body) {
