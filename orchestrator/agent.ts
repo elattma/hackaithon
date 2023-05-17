@@ -1,6 +1,6 @@
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { ChatCompletionRequestMessage, OpenAIApi } from "openai";
-import { State } from "./model";
+import { State } from "@/orchestrator/model";
 
 export abstract class Agent {
   protected openai: OpenAIApi;

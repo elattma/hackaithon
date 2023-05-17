@@ -1,5 +1,5 @@
-import { Agent } from "./agent";
-import { State } from "./model";
+import { Agent } from "@/orchestrator/agent";
+import { State } from "@/orchestrator/model";
 
 export class PrdAgent extends Agent {
   async act(state: State): Promise<State> {

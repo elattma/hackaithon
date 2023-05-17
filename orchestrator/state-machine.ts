@@ -1,5 +1,5 @@
 import { OpenAIApi } from "openai";
-import { Action, ActionType, State } from "./model";
+import { Action, ActionType, State } from "@/orchestrator/model";
 
 // TODO: make this sequential instead of recursive
 export const traverseState = async (
