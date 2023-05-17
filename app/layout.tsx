@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import "./globals.css";
+import "@/app/globals.css";
 import { mono, sans } from "@/lib/fonts";
+import { StateProvider } from "@/context/state";
 
 export const metadata = {
   title: "PM Agent",
@@ -14,17 +15,19 @@ type RootLayoutProps = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased text-foreground",
-          sans.variable,
-          mono.variable
-        )}
-      >
-        {children}
-      </body>
-    </html>
+    <StateProvider>
+      <html lang="en" suppressHydrationWarning>
+        <head />
+        <body
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased text-foreground",
+            sans.variable,
+            mono.variable
+          )}
+        >
+          {children}
+        </body>
+      </html>
+    </StateProvider>
   );
 }
