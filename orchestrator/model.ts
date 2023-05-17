@@ -22,19 +22,19 @@ export interface State {
   tasks?: string[];
 }
 
-export interface Action {
-  type: string;
+export enum ActionType {
+  ConfirmFeature = "CONFIRM_FEATURE",
+  ConfirmPRD = "CONFIRM_PRD",
+  InputDimension = "INPUT_DIMENSION",
 }
 
-export interface ConfirmFeatureAction extends Action {
-  type: "CONFIRM_FEATURE";
-}
+export interface ActionParams {}
 
-export interface ConfirmPRDAction extends Action {
-  type: "CONFIRM_PRD";
-}
-
-export interface InputDimensionAction extends Action {
-  type: "INPUT_DIMENSION";
+export interface InputDimensionActionParams extends ActionParams {
   dimension: Dimension;
+}
+
+export interface Action {
+  type: ActionType;
+  params: ActionParams;
 }
