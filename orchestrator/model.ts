@@ -23,9 +23,9 @@ export interface State {
 }
 
 export enum ActionType {
+  InputDimension = "INPUT_DIMENSION",
   ConfirmFeature = "CONFIRM_FEATURE",
   ConfirmPRD = "CONFIRM_PRD",
-  InputDimension = "INPUT_DIMENSION",
 }
 
 export interface ActionParams {}
