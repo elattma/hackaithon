@@ -12,7 +12,7 @@ export interface Dimension {
 export interface Problem {
   text: string;
   feature?: string;
-  tables?: string[];
+  table?: string;
 }
 
 export interface State {
@@ -22,7 +22,19 @@ export interface State {
   tasks?: string[];
 }
 
-export interface HumanAction {
-  type: "" | "";
-  text: string;
+export interface Action {
+  type: string;
+}
+
+export interface ConfirmFeatureAction extends Action {
+  type: "CONFIRM_FEATURE";
+}
+
+export interface ConfirmPRDAction extends Action {
+  type: "CONFIRM_PRD";
+}
+
+export interface InputDimensionAction extends Action {
+  type: "INPUT_DIMENSION";
+  dimension: Dimension;
 }

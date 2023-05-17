@@ -7,7 +7,7 @@ export abstract class Agent {
     this.api = api;
   }
 
-  private llm = (api: OpenAIApi) => {
+  private chat = (api: OpenAIApi) => {
     return async (params: {
       model: "gpt-3.5-turbo" | "gpt-4";
       messages: ChatCompletionRequestMessage[];

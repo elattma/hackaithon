@@ -1,10 +1,10 @@
 import { OpenAIApi } from "openai";
-import { HumanAction, State } from "./model";
+import { Action, State } from "./model";
 
 export const traverseState = async (
   api: OpenAIApi,
   state: State,
-  humanAction: HumanAction
+  action: Action
 ): Promise<State> => {
   // orchestrator here
   return {};
