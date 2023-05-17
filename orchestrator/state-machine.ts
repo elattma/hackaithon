@@ -1,18 +1,21 @@
 import { Action, ActionType, State } from "@/orchestrator/model";
 import { OpenAIApi } from "openai";
 
+const encoder = new TextEncoder();
+
 // TODO: make this sequential instead of recursive
-export const traverseState = async (
+export async function* traverseState(
   api: OpenAIApi,
   state: State,
   action?: Action
-): Promise<State | undefined> => {
+) {
+  yield encoder.encode(JSON.stringify(state));
   if (!api || !state) {
     throw new Error("Invalid arguments");
   }
   if (!action && state.prd) {
     // condition where it should stop
-    return state;
+    return;
   }
   switch (action?.type) {
     case ActionType.InputDimension:
@@ -28,5 +31,5 @@ export const traverseState = async (
       // do stuff
       break;
   }
-  return traverseState(api, state);
-};
+  traverseState(api, state);
+}
