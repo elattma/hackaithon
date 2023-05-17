@@ -11,17 +11,17 @@ export abstract class Agent {
     this.cache = cache;
   }
 
-  private chat = async (params: {
+  protected chat = async (params: {
     model: "gpt-3.5-turbo" | "gpt-4";
     messages: ChatCompletionRequestMessage[];
-    temprature?: number;
+    temperature?: number;
     stream?: boolean;
     maxTokens?: number;
   }): Promise<string | undefined> => {
     const response = await this.openai.createChatCompletion({
       model: params.model,
       messages: params.messages,
-      temperature: params.temprature ? params.temprature : 0,
+      temperature: params.temperature ? params.temperature : 0,
       stream: params.stream ? params.stream : false,
       max_tokens: params.maxTokens ? params.maxTokens : 150,
     });
