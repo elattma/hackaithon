@@ -1,26 +1,26 @@
-export interface Question {
+export type Question = {
   text: string;
   answer?: string;
-}
+};
 
-export interface Dimension {
+export type Dimension = {
   text: string;
   questions?: Question[];
   followUpQuestions?: Question[];
-}
+};
 
-export interface Problem {
+export type Problem = {
   text: string;
   feature?: string;
   table?: string;
-}
+};
 
-export interface State {
+export type State = {
   dimension?: Dimension;
   problems?: Problem[];
   prd?: string;
   tasks?: string[];
-}
+};
 
 export enum ActionType {
   InputDimension = "INPUT_DIMENSION",
@@ -28,13 +28,13 @@ export enum ActionType {
   ConfirmPRD = "CONFIRM_PRD",
 }
 
-export interface ActionParams {}
+export type ActionParams = {};
 
-export interface InputDimensionActionParams extends ActionParams {
+export type InputDimensionActionParams = {
   dimension: Dimension;
-}
+} & ActionParams;
 
-export interface Action {
+export type Action = {
   type: ActionType;
   params: ActionParams;
-}
+};
