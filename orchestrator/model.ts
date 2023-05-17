@@ -9,11 +9,6 @@ export type FollowUpQuestion = {
   answer?: string;
 };
 
-export type Dimension = {
-  text: string;
-  questions?: Question[];
-};
-
 export type Problem = {
   text: string;
   feature?: string;
@@ -21,22 +16,23 @@ export type Problem = {
 };
 
 export type State = {
-  dimension?: Dimension;
+  input?: string;
+  questions?: Question[];
   problems?: Problem[];
   prd?: string;
   tasks?: string[];
 };
 
 export enum ActionType {
-  InputDimension = "INPUT_DIMENSION",
+  ProvideInput = "PROVIDE_INPUT",
   ConfirmFeature = "CONFIRM_FEATURE",
   ConfirmPRD = "CONFIRM_PRD",
 }
 
 export type ActionParams = {};
 
-export type InputDimensionActionParams = {
-  dimension: Dimension;
+export type ProvideInputActionParams = {
+  input: string;
 } & ActionParams;
 
 export type Action = {

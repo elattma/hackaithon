@@ -38,13 +38,12 @@ const systemPrompt: ChatCompletionRequestMessage = {
 
 export class PrdAgent extends Agent {
   async act(state: State): Promise<State> {
-    const dimension = state?.dimension;
-    const questions = dimension?.questions;
+    const questions = state.questions;
     if (!questions?.length) {
       throw new Error("No questions found");
     }
 
-    const problem = state?.problems?.[0];
+    const problem = state.problems?.[0];
     const feature = problem?.feature;
     const table = problem?.table;
 
