@@ -1,6 +1,6 @@
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { ChatCompletionRequestMessage, OpenAIApi } from "openai";
-import { State } from "@/orchestrator/model";
+import { Action, State } from "@/orchestrator/model";
 
 export abstract class Agent {
   protected openai: OpenAIApi;
@@ -28,5 +28,5 @@ export abstract class Agent {
     return response.data.choices[0].message?.content;
   };
 
-  abstract act(state: State): Promise<State>;
+  abstract act(state: State, action: Action): Promise<State>;
 }
