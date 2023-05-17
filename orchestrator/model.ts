@@ -15,12 +15,31 @@ export type Problem = {
   table?: string;
 };
 
+export enum AgentType {
+  RESEARCH = "RESEARCH",
+  PRD = "PRD",
+  TICKETEER = "TICKETEER",
+  END = "END",
+  ERROR = "ERROR",
+}
+
+export type ExternalPrompt = {
+  request: Action;
+  response?: Action;
+};
+
+export type Next = {
+  agent?: AgentType;
+  external_prompt?: ExternalPrompt;
+};
+
 export type State = {
   input?: string;
   questions?: Question[];
   problems?: Problem[];
   prd?: string;
   tasks?: string[];
+  next?: Next;
 };
 
 export enum ActionType {
@@ -37,5 +56,5 @@ export type ProvideInputActionParams = {
 
 export type Action = {
   type: ActionType;
-  params: ActionParams;
+  params?: ActionParams;
 };

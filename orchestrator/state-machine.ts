@@ -1,39 +1,54 @@
-import { Action, ActionType, State } from "@/orchestrator/model";
+import { AgentType, State } from "@/orchestrator/model";
 import { OpenAIApi } from "openai";
 import { PrdAgent } from "./prd-agent";
 
 const encoder = new TextEncoder();
 
 // TODO: make this sequential instead of recursive
-export async function* traverseState(
-  api: OpenAIApi,
-  state: State,
-  action?: Action
-) {
-  yield encoder.encode(JSON.stringify(state));
-  if (!api || !state) {
+export async function* traverseState(api: OpenAIApi, state: State) {
+  if (!api || !state || state.next?.agent === AgentType.ERROR) {
     throw new Error("Invalid arguments");
   }
-  if (!action && state.prd) {
-    // condition where it should stop
+  if (!state.next) {
+    // Assuming this only happens when starting from the beginning
+    // TODO: add check for other state and handle cases where somehow this was nullified
+    // Can parse state and figure out where to start in the state machine
+    state.next = {
+      agent: AgentType.RESEARCH,
+    };
+  } else if (state.next.external_prompt) {
+    yield encoder.encode(JSON.stringify(state));
     return;
   }
-  switch (action?.type) {
-    case ActionType.InputDimension:
-      // apply action to state
-      // do stuff
-      break;
-    case ActionType.ConfirmFeature:
-      // apply action to state
-      // do stuff
-      break;
-    case ActionType.ConfirmPRD:
-      const prdAgent = new PrdAgent(api);
-      state = await prdAgent.act(state);
-      yield encoder.encode(JSON.stringify(state));
 
-      // do stuff
+  switch (state.next.agent) {
+    case AgentType.RESEARCH:
+      // TODO: add research agent
       break;
+    case AgentType.PRD:
+      const prdAgent = new PrdAgent(api);
+      state.next = await prdAgent.act(state);
+      yield encoder.encode("PRD Agent did something!");
+      break;
+    case AgentType.TICKETEER:
+      // TODO: add ticketeer agent
+      yield encoder.encode("Ticketeer Agent did something!");
+      break;
+    case AgentType.END:
+      state.next = {
+        agent: AgentType.END,
+      };
+      yield encoder.encode("I'm finished!");
+      yield encoder.encode(JSON.stringify(state));
+      return;
+    case AgentType.ERROR:
+    default:
+      state.next = {
+        agent: AgentType.ERROR,
+      };
+      yield encoder.encode("Something went wrong!");
+      yield encoder.encode(JSON.stringify(state));
+      return;
   }
   traverseState(api, state);
 }

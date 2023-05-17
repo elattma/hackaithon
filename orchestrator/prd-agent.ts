@@ -1,5 +1,5 @@
 import { Agent } from "@/orchestrator/agent";
-import { State } from "@/orchestrator/model";
+import { ActionType, AgentType, Next, State } from "@/orchestrator/model";
 import { promptQuestionAnswers } from "@/orchestrator/prompter";
 import { ChatCompletionRequestMessage } from "openai";
 
@@ -37,7 +37,7 @@ const systemPrompt: ChatCompletionRequestMessage = {
 };
 
 export class PrdAgent extends Agent {
-  async act(state: State): Promise<State> {
+  async act(state: State): Promise<Next> {
     const questions = state.questions;
     if (!questions?.length) {
       throw new Error("No questions found");
@@ -67,11 +67,18 @@ export class PrdAgent extends Agent {
     const prd = await this.chat({
       model: "gpt-3.5-turbo",
       messages: [systemPrompt, featurePrompt, qaPrompt, prdPrompt],
-      maxTokens: 2000,
       temperature: 0,
+      maxTokens: 2000,
     });
 
     state.prd = prd;
-    return state;
+    return {
+      agent: AgentType.TICKETEER,
+      external_prompt: {
+        request: {
+          type: ActionType.ConfirmPRD,
+        },
+      },
+    };
   }
 }

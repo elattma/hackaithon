@@ -1,23 +1,19 @@
 "use client";
 
 import { Messages } from "@/components/messages";
-import { Action, ActionType, State } from "@/orchestrator/model";
+import { useStateContext } from "@/context/state";
+import { State } from "@/orchestrator/model";
 import { Button } from "./ui/button";
 
-// TODO: add provider for "state"
+const decoder = new TextDecoder();
+
 export function Chat() {
+  const context = useStateContext();
   const callApi = async () => {
-    console.log("clicked!");
-    const state: State = {};
-    const action: Action = {
-      type: ActionType.InputDimension,
-      params: {},
-    };
     const response = await fetch("http://localhost:3000/api", {
       method: "POST",
       body: JSON.stringify({
-        state,
-        action,
+        state: context?.state,
       }),
     });
     if (!response.body) {
@@ -27,11 +23,21 @@ export function Chat() {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
-        console.log("done!");
-        // TODO: update state object in frontend
+        const decoded = decoder.decode(value);
+        try {
+          const state: State = JSON.parse(decoded);
+          context?.setState(state);
+          console.log("state!", state);
+          // TODO: set agent message here depending on what the state is
+          // TODO: parse next, and prompt for what to do next
+        } catch (e) {
+          console.log("error parsing state!", e);
+        }
         return;
       }
-      // TODO: message to frontend
+      const thought = decoder.decode(value);
+      console.log("thought!", thought);
+      // TODO: set thoughts in UI here
     }
   };
 
