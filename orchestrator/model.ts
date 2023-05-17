@@ -1,18 +1,14 @@
 export type Question = {
   text: string;
   answer?: string;
-  followUpQuestions?: FollowUpQuestion[];
 };
 
-export type FollowUpQuestion = {
-  text: string;
-  answer?: string;
-};
-
-export type Problem = {
-  text: string;
-  feature?: string;
-  table?: string;
+export type Feature = {
+  name: string;
+  description: string;
+  estimatedHours: string;
+  pros: string;
+  cons: string;
 };
 
 export enum AgentType {
@@ -36,7 +32,8 @@ export type Next = {
 export type State = {
   input?: string;
   questions?: Question[];
-  problems?: Problem[];
+  followUpQuestions?: Question[];
+  features?: Feature[];
   prd?: string;
   tasks?: string[];
   next?: Next;
