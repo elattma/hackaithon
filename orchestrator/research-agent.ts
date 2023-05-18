@@ -1,14 +1,15 @@
 import { ChatCompletionRequestMessageRoleEnum } from "openai";
 
 import { Agent } from "@/orchestrator/agent";
+import { getContext } from "@/orchestrator/mimo";
 import {
   ActionType,
   AgentType,
+  Feature,
   Next,
   Question,
   State,
 } from "@/orchestrator/model";
-import { getContext } from "@/orchestrator/mimo";
 
 export class ResearchAgent extends Agent {
   async act(state: State): Promise<Next> {
@@ -42,9 +43,10 @@ Your questions should be simple and contain only one part, because you will have
       // Process response to get questions
       const llmResponse = response.data.choices[0].message;
       if (llmResponse === undefined) throw new Error("LLM call failed");
-      const questions = getQuestionsFromLlmResponse(llmResponse.content);
+      const questions: Question[] = getQuestionsFromLlmResponse(
+        llmResponse.content
+      );
 
-      // Update state with questions and return
       state.questions = questions;
       return {
         agent: AgentType.RESEARCH,
@@ -99,7 +101,7 @@ ${context}`;
       for (const gpt4Result of gpt4Results) {
         const llmResponse = gpt4Result.data.choices[0].message;
         if (llmResponse === undefined) answers.push("No answer found");
-        else answers.push(llmResponse.content);
+        else answers.push(encodeURIComponent(llmResponse.content));
       }
 
       // Update state with answers
@@ -209,7 +211,7 @@ ${context}`;
       for (const gpt4Result of gpt4Results) {
         const llmResponse = gpt4Result.data.choices[0].message;
         if (llmResponse === undefined) answers.push("No answer found");
-        else answers.push(llmResponse.content);
+        else answers.push(encodeURIComponent(llmResponse.content));
       }
 
       // Update state with answers
@@ -259,8 +261,14 @@ Again, your answer should be a list of feature objects and MUST be valid JSON th
       });
       const llmResponse = result.data.choices[0].message;
       if (llmResponse === undefined) throw new Error("LLM call failed");
-      const features = JSON.parse(llmResponse.content);
-      state.features = features;
+      const features: Feature[] = JSON.parse(llmResponse.content);
+      state.features = features.map((feature) => ({
+        name: encodeURIComponent(feature.name),
+        description: encodeURIComponent(feature.description),
+        estimatedHours: encodeURIComponent(feature.estimatedHours),
+        pros: encodeURIComponent(feature.pros),
+        cons: encodeURIComponent(feature.cons),
+      }));
       return {
         agent: AgentType.PRD,
         external_prompt: {
@@ -284,7 +292,7 @@ function getQuestionsFromLlmResponse(llmResponse: string): Question[] {
     const match = question.match(/^\d+\.\s+(.*)$/);
     if (match) {
       const questionText = match[1];
-      questions.push({ text: questionText });
+      questions.push({ text: encodeURIComponent(questionText) });
     }
   }
 
