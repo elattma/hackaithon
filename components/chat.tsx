@@ -35,7 +35,7 @@ export function Chat() {
       method: "POST",
       body: JSON.stringify({
         state: newState,
-        password: "mimo4aiagents",
+        password: "",
       }),
     });
     if (!response.body) {
@@ -93,7 +93,8 @@ export function Chat() {
             )}`}
           />
         )}
-        {state.questions?.some((q) => q.answer === undefined) ? (
+        {state.questions &&
+        state.questions.some((q) => q.answer !== undefined) ? (
           <AgentThought content="Found answers to my questions... Thinking of follow up questions" />
         ) : null}
         {state.followUpQuestions === undefined ? null : (
@@ -104,9 +105,10 @@ export function Chat() {
             )}`}
           />
         )}
-        {state.followUpQuestions?.some((q) => q.answer === undefined) ? null : (
+        {state.followUpQuestions &&
+        state.followUpQuestions.some((q) => q.answer !== undefined) ? (
           <AgentThought content="Found answers to my follow up questions... Synthesizing my knowledge and coming up with new features" />
-        )}
+        ) : null}
         {state.features === undefined ? null : (
           <Features features={state.features} />
         )}

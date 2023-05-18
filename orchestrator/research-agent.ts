@@ -22,7 +22,7 @@ export class ResearchAgent extends Agent {
 You are very good at your job and you are trusted by the company to make incredible product decisions.
 Your ultimate goal is to come up with a valuable new feature for the company's product that is backed up by substantial data, research, and reasoning.
 You do not know anything about the company you are working for or its product, so you need to ask questions to find out more.
-Based on the message that the company has sent you below, come up with a numbered list of 6 questions that you need answered before you can come up with a new feature.
+Based on the message that the company has sent you below, come up with a numbered list of 2 questions that you need answered before you can come up with a new feature.
 Your questions should be simple and contain only one part, because you will have the opportunity to ask follow-up questions.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
@@ -99,7 +99,7 @@ ${context}`;
       for (const gpt4Result of gpt4Results) {
         const llmResponse = gpt4Result.data.choices[0].message;
         if (llmResponse === undefined) answers.push("No answer found");
-        else answers.push(encodeURIComponent(llmResponse.content));
+        else answers.push(llmResponse.content);
       }
 
       // Update state with answers
@@ -128,7 +128,7 @@ ${formattedQuestions}`;
 You are very good at your job and you are trusted by the company to make incredible product decisions.
 Your ultimate goal is to come up with a valuable new feature for the company's product that is backed up by substantial data, research, and reasoning.
 You have already learned some information about the company and its product as reflected by the questions and answers provided above, but there is room to learn more.
-Based on the questions and answers provided above, come up with a numbered list of 5 follow up questions that go deeper into the explored topics.
+Based on the questions and answers provided above, come up with a numbered list of 2 follow up questions that go deeper into the explored topics.
 They should be simple, meaningful, and not have multiple parts.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
@@ -209,7 +209,7 @@ ${context}`;
       for (const gpt4Result of gpt4Results) {
         const llmResponse = gpt4Result.data.choices[0].message;
         if (llmResponse === undefined) answers.push("No answer found");
-        else answers.push(encodeURIComponent(llmResponse.content));
+        else answers.push(llmResponse.content);
       }
 
       // Update state with answers
@@ -262,13 +262,19 @@ You should support your answer with as much detail and evidence from your notes 
       });
       const llmResponse = result.data.choices[0].message;
       if (llmResponse === undefined) throw new Error("LLM call failed");
-      const features: Feature[] = JSON.parse(llmResponse.content);
+      const jsonString = llmResponse.content;
+      console.log(jsonString);
+      const jsonStartIndex = jsonString.indexOf("[");
+      const strippedJsonString = jsonString.substring(jsonStartIndex);
+      console.log(strippedJsonString);
+      const features: Feature[] = JSON.parse(strippedJsonString);
       state.features = features.map((feature) => ({
-        name: encodeURIComponent(feature.name),
-        description: encodeURIComponent(feature.description),
-        estimatedHours: encodeURIComponent(feature.estimatedHours),
-        pros: encodeURIComponent(feature.pros),
-        cons: encodeURIComponent(feature.cons),
+        name: feature.name,
+        description: feature.description,
+        hours: feature.hours,
+        rationale: feature.rationale,
+        pros: feature.pros,
+        cons: feature.cons,
       }));
       return {
         agent: AgentType.PRD,
@@ -293,7 +299,7 @@ function getQuestionsFromLlmResponse(llmResponse: string): Question[] {
     const match = question.match(/^\d+\.\s+(.*)$/);
     if (match) {
       const questionText = match[1];
-      questions.push({ text: encodeURIComponent(questionText) });
+      questions.push({ text: questionText });
     }
   }
 

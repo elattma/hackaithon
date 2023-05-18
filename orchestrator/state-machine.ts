@@ -7,12 +7,14 @@ import { TicketeerAgent } from "./ticketeer-agent";
 const encoder = new TextEncoder();
 
 // TODO: make this sequential instead of recursive
-export async function* traverseState(api: OpenAIApi, state: State) {
+export async function* traverseState(
+  api: OpenAIApi,
+  state: State
+): AsyncGenerator {
   if (!api || !state || !state.next || state.next?.agent === AgentType.ERROR) {
     throw new Error("Invalid arguments");
   }
   if (state.next.external_prompt) {
-    yield encoder.encode(JSON.stringify(state));
     return;
   }
 
@@ -53,5 +55,5 @@ export async function* traverseState(api: OpenAIApi, state: State) {
       return;
   }
   console.log(state.next);
-  // yield* traverseState(api, state);
+  yield* traverseState(api, state);
 }
