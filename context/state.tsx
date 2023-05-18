@@ -2,7 +2,6 @@
 
 import { State } from "@/orchestrator/model";
 import { createContext, useContext, useState } from "react";
-import { CREATED_TICKETS_STATE } from "./sample";
 
 type StateContext = {
   state: State;
@@ -16,7 +15,7 @@ type StateProviderProps = {
 };
 
 export function StateProvider({ children }: StateProviderProps) {
-  const [state, setState] = useState<State>(CREATED_TICKETS_STATE);
+  const [state, setState] = useState<State>({});
 
   return (
     <stateContext.Provider value={{ state, setState }}>
