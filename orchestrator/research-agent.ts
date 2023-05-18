@@ -21,7 +21,7 @@ export class ResearchAgent extends Agent {
 You are very good at your job and you are trusted by the company to make incredible product decisions.
 Your ultimate goal is to come up with a valuable new feature for the company's product that is backed up by substantial data, research, and reasoning.
 You do not know anything about the company you are working for or its product, so you need to ask questions to find out more.
-Based on the message that the company has sent you below, come up with a numbered list of 2 questions that you need answered before you can come up with a new feature.
+Based on the message that the company has sent you below, come up with a numbered list of 5 questions that you need answered before you can come up with a new feature.
 Your questions should be simple and contain only one part, because you will have the opportunity to ask follow-up questions.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
@@ -36,6 +36,7 @@ Your questions should be simple and contain only one part, because you will have
       const response = await this.openai.createChatCompletion({
         model: "gpt-4",
         messages: [systemMessage, userMessage],
+        temperature: 0.0,
       });
 
       // Process response to get questions
@@ -71,7 +72,7 @@ If you cannot answer the question using the context, return "No answer found"`;
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: systemMessageContent,
       };
-      // Fire off requests to GPT-3.5 in parallel
+      // Fire off requests to GPT-4 in parallel
       for (let i = 0; i < questions.length; i++) {
         const question = questions[i];
         const context = contexts[i];
@@ -87,7 +88,7 @@ ${context}`;
           content: question.text,
         };
         const promise = this.openai.createChatCompletion({
-          model: "gpt-3.5-turbo",
+          model: "gpt-4",
           messages: [contextMessage, systemMessage, userMessage],
         });
         gpt4Promises.push(promise);
@@ -127,7 +128,7 @@ ${formattedQuestions}`;
 You are very good at your job and you are trusted by the company to make incredible product decisions.
 Your ultimate goal is to come up with a valuable new feature for the company's product that is backed up by substantial data, research, and reasoning.
 You have already learned some information about the company and its product as reflected by the questions and answers provided above, but there is room to learn more.
-Based on the questions and answers provided above, come up with a numbered list of 2 follow up questions that go deeper into the explored topics.
+Based on the questions and answers provided above, come up with a numbered list of 5 follow up questions that go deeper into the explored topics.
 They should be simple, meaningful, and not have multiple parts.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
@@ -142,6 +143,7 @@ They should be simple, meaningful, and not have multiple parts.`;
       const result = await this.openai.createChatCompletion({
         model: "gpt-4",
         messages: [questionsMessage, systemMessage, userMessage],
+        temperature: 0.0,
       });
 
       // Process response to get questions
@@ -181,7 +183,7 @@ If you cannot answer the question using the context, return "No answer found"`;
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: systemMessageContent,
       };
-      // Fire off requests to GPT-3.5 in parallel
+      // Fire off requests to GPT-4 in parallel
       for (let i = 0; i < questions.length; i++) {
         const question = questions[i];
         const context = contexts[i];
@@ -197,8 +199,9 @@ ${context}`;
           content: question.text,
         };
         const promise = this.openai.createChatCompletion({
-          model: "gpt-3.5-turbo",
+          model: "gpt-4",
           messages: [contextMessage, systemMessage, userMessage],
+          temperature: 0.0,
         });
         gpt4Promises.push(promise);
       }
@@ -258,6 +261,7 @@ You should support your answer with as much detail and evidence from your notes 
       const result = await this.openai.createChatCompletion({
         model: "gpt-4",
         messages: [notesMessage, systemMessage, userMessage],
+        temperature: 0.0,
       });
       const llmResponse = result.data.choices[0].message;
       if (llmResponse === undefined) throw new Error("LLM call failed");

@@ -13,7 +13,7 @@ import {
   EditPrdParams,
   State,
 } from "@/orchestrator/model";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Tasks } from "./tasks";
 
 const decoder = new TextDecoder();
@@ -21,8 +21,10 @@ const decoder = new TextDecoder();
 // TODO: add somewhere we can add a password
 
 export function Chat() {
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const { state, setState } = useStateContext();
   const [input, setInput] = useState<string>("");
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
   const traverse = async (event: any, newState?: State) => {
     event.preventDefault();
@@ -34,7 +36,7 @@ export function Chat() {
       method: "POST",
       body: JSON.stringify({
         state: newState,
-        password: "",
+        password: "mimo4aiagents",
       }),
     });
     if (!response.body) {
@@ -60,9 +62,13 @@ export function Chat() {
     }
   };
 
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [state]);
+
   return (
     <main className="flex-1 overflow-y-auto my-4 rounded-sm border flex flex-col p-4 gap-4">
-      <div className="flex flex-col flex-1 gap-4 overflow-y-auto">
+      <div className="flex flex-col flex-1 gap-3 overflow-y-auto">
         <AgentMessage content="Hello! I'm Raina, your AI product manager. How can I help you?" />
         {state.input === undefined ? null : (
           <>
@@ -97,15 +103,22 @@ export function Chat() {
         {state.features === undefined ? null : (
           <Features features={state.features} />
         )}
+        {state.features && state.features.length === 1 ? (
+          <AgentThought content="Creating a Product Requirements Document from the feature you have selected" />
+        ) : null}
         {state.prd === undefined ? null : (
           <>
-            <AgentThought content="Here is the Product Requirements Document:" />
-            <AgentThought content={state.prd} />
-            <AgentThought
+            <AgentMessage
+              content={`Here is the Product Requirements Document:
+            
+            ${state.prd}`}
+            />
+            <AgentMessage
               content={`Type "confirm" to create the tickets or enter in how you would like me to edit your document`}
             />
           </>
         )}
+        {showConfirm ? <UserMessage content="confirm" /> : null}
         {state.next?.agent === AgentType.PRD &&
         state.next?.external_prompt?.response?.type ===
           ActionType.ConfirmPRD ? (
@@ -113,13 +126,16 @@ export function Chat() {
             content={"Editing your Product Requirements Document accordingly."}
           />
         ) : null}
-        {state.tasks === undefined ? null : <Tasks tasks={state.tasks} />}
-        {state.tasks !== undefined && state.next?.agent === AgentType.END ? (
-          <AgentThought content={"I've created the tickets in linear!"} />
-        ) : null}
+        {state.tasks === undefined ? null : (
+          <>
+            <AgentMessage content="Here are tickets based on the PRD. I've created them for you in Linear as well." />
+            <Tasks tasks={state.tasks} />
+          </>
+        )}
         {state.next?.agent === AgentType.END ? (
           <AgentThought content={"Done!"} />
         ) : null}
+        <div ref={chatEndRef} />
       </div>
       <form
         className="flex items-center gap-4"
@@ -169,6 +185,7 @@ export function Chat() {
                   agent: AgentType.TICKETEER,
                 },
               };
+              setShowConfirm(true);
             } else if (input === "stop") {
               newState = {
                 ...state,
