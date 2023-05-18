@@ -1,12 +1,5 @@
 import { Agent } from "@/orchestrator/agent";
-import {
-  ActionType,
-  AgentType,
-  AuthActionParams,
-  Next,
-  State,
-  Task,
-} from "@/orchestrator/model";
+import { AgentType, Next, State, Task } from "@/orchestrator/model";
 import { LinearClient } from "@linear/sdk";
 import { ChatCompletionRequestMessage } from "openai";
 
@@ -15,14 +8,10 @@ const systemPrompt: ChatCompletionRequestMessage = {
   content: `Pretend you are a project manager. 
   Create a list of tasks to assign to your team in order to 
   build out the feature in the given Product Requirements Document.
-  Your output must be in this format: [{task1}, {task2}, {task3}, ...].
-  Each task is structured like so:
-  {
-    "name": "task name",
-    "description": "task description",
-    "assignee": "assignee name",
-    "due_date": "due date"
-  }`,
+  Once you have thought of your tasks, you should return a list of tasks, represented by JSON objects.
+  The JSON objects should have the following fields:
+  {"name": "the name of the task", "description": "a description of the task", "assignee": "who to assign the ticket to", "due_date": "how many story points the task is worth"}
+  Again, your answer should be a list of feature objects and MUST be valid JSON that can be converted to a JSON object using JSON.parse().`,
 };
 
 export class TicketeerAgent extends Agent {
@@ -35,17 +24,15 @@ export class TicketeerAgent extends Agent {
 
       const userPrompt: ChatCompletionRequestMessage = {
         role: "user",
-        content:
-          "Please write as many tasks as you can think of to build out this feature and respond in the required format!",
+        content: "Begin!",
       };
 
       const response = await this.chat({
-        model: "gpt-3.5-turbo",
-        messages: [systemPrompt, prdPrompt, userPrompt],
+        model: "gpt-4",
+        messages: [prdPrompt, systemPrompt, userPrompt],
         temperature: 0.0,
         maxTokens: 1000,
       });
-      console.log(response);
       if (!response) {
         throw new Error("No response from OpenAI API");
       }
@@ -56,26 +43,18 @@ export class TicketeerAgent extends Agent {
       return {
         agent: AgentType.TICKETEER,
       };
-    } else if (state.next?.external_prompt?.response === undefined) {
-      return {
-        agent: AgentType.TICKETEER,
-        external_prompt: {
-          request: {
-            type: ActionType.AUTH,
-          },
-        },
-      };
     } else {
-      const params = state.next.external_prompt.response
-        .params as AuthActionParams;
       const linearClient = new LinearClient({
-        accessToken: params.accessToken,
+        accessToken: process.env.LINEAR_ACCESS_TOKEN,
       });
+
+      const teamId = (await linearClient.teams()).nodes[0].id;
+      const projectId = (await linearClient.projects()).nodes[0].id;
 
       for (const task of state.tasks) {
         const issue = await linearClient.createIssue({
-          teamId: "team-id",
-          projectId: "project-id",
+          teamId: teamId,
+          projectId: projectId,
           title: task.name || "",
           description: task.description || "",
         });

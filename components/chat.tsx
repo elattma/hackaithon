@@ -9,6 +9,7 @@ import { UserMessage } from "@/components/user-message";
 import { useStateContext } from "@/context/state";
 import { ActionType, AgentType, State } from "@/orchestrator/model";
 import { useState } from "react";
+import { Tasks } from "./tasks";
 
 const decoder = new TextDecoder();
 
@@ -18,19 +19,12 @@ export function Chat() {
   const { state, setState } = useStateContext();
   const [input, setInput] = useState<string>("");
 
-  const provideInput: React.FormEventHandler<HTMLFormElement> = async (
-    event
-  ) => {
+  const traverse = async (event: any, newState?: State) => {
     event.preventDefault();
-
-    const newState: State = {
-      ...state,
-      input,
-      next: {
-        agent: AgentType.RESEARCH,
-      },
-    };
-    setState(newState);
+    if (newState === undefined) {
+      return;
+    }
+    console.log("traversing!", newState);
     const response = await fetch("http://localhost:3000/api", {
       method: "POST",
       body: JSON.stringify({
@@ -39,12 +33,14 @@ export function Chat() {
       }),
     });
     if (!response.body) {
+      console.log("no body!");
       return;
     }
     const reader = response.body.getReader();
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
+        console.log("done!");
         return;
       }
       const decoded = decoder.decode(value);
@@ -53,25 +49,9 @@ export function Chat() {
         const decodedState: State = JSON.parse(decoded);
         setState(decodedState);
         console.log("state!", decodedState);
-        const request = decodedState.next?.external_prompt?.request;
-        if (decodedState.next?.agent === AgentType.END) {
-          // you know you are done with your goal
-        }
-        if (request?.type === ActionType.ProvideInput) {
-          // todo: prompt to provide input
-        } else if (request?.type === ActionType.ConfirmPRD) {
-          // todo: prompt to confirm
-        } else if (request?.type === ActionType.ConfirmFeature) {
-          // todo: prompt to confirm feature
-        } else {
-          // ???? did something go wrong? or just end?
-        }
-        // TODO: set agent message here depending on what the state is
-        // TODO: parse next, and prompt for what to do next
       } catch (e) {
         console.log("error parsing state!", e);
       }
-      // TODO: set thoughts in UI here
     }
   };
 
@@ -112,11 +92,80 @@ export function Chat() {
         {state.features === undefined ? null : (
           <Features features={state.features} />
         )}
+        {state.prd === undefined ? null : (
+          <AgentThought
+            content={`Here is the Product Requirements Document:\n${state.prd}\nShould I create tickets and add them to linear? (y/n)`}
+          />
+        )}
+        {state.tasks === undefined ? null : <Tasks tasks={state.tasks} />}
+        {state.tasks !== undefined && state.next?.agent === AgentType.END ? (
+          <AgentThought content={"I've created the tickets in linear!"} />
+        ) : null}
+        {state.next?.agent === AgentType.END ? (
+          <AgentThought content={"Done!"} />
+        ) : null}
       </div>
       <form
         className="flex items-center gap-4"
         onSubmit={(event) => {
-          provideInput(event);
+          let newState: State | undefined = undefined;
+          if (!state.next) {
+            newState = {
+              ...state,
+              input,
+              next: {
+                agent: AgentType.RESEARCH,
+              },
+            };
+          } else if (state.next.agent === AgentType.RESEARCH) {
+            newState = state;
+          } else if (state.next.agent === AgentType.PRD) {
+            if (!state.next.external_prompt) {
+              console.log("invalid state!");
+              return;
+            }
+            let feat = -1;
+            try {
+              feat = parseInt(input);
+            } catch (e) {}
+            if (feat < 1 || !state.features || feat > state.features.length) {
+              console.log("invalid feature!");
+              return;
+            }
+            newState = {
+              ...state,
+              features: [state.features[feat - 1]],
+              next: {
+                agent: state.next.agent,
+                external_prompt: {
+                  request: state.next.external_prompt.request,
+                  response: {
+                    type: ActionType.ConfirmFeature,
+                  },
+                },
+              },
+            };
+          } else if (state.next.agent === AgentType.TICKETEER) {
+            if (input !== "y" && input !== "n") {
+              console.log("invalid input!");
+              return;
+            }
+            newState = {
+              ...state,
+              next: {
+                agent: input === "y" ? AgentType.TICKETEER : AgentType.END,
+              },
+            };
+          } else if (state.next.agent === AgentType.END) {
+            return;
+          }
+
+          if (newState === undefined) {
+            console.log("invalid state!");
+            return;
+          }
+          setState(newState);
+          traverse(event, newState);
           setInput("");
         }}
       >

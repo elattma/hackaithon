@@ -5,7 +5,6 @@ import { getContext } from "@/orchestrator/mimo";
 import {
   ActionType,
   AgentType,
-  Feature,
   Next,
   Question,
   State,
@@ -229,7 +228,7 @@ ${context}`;
       const formattedQuestions = formatQuestions(allQuestions);
       const notesMessageContent = `NOTES
 --------
-${formatQuestions}`;
+${formattedQuestions}`;
       const notesMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: notesMessageContent,
@@ -241,7 +240,7 @@ The features should be supported by your research and should improve an existing
 The features should not be generic; they should be fit to the company's product and address specfic needs and gaps.
 Once you have thought of your features, you should return a list of features, represented by JSON objects.
 The JSON objects should have the following fields:
-{"name": "the name of the feature", "description": "a description of the feature", "estimated_hours": "an estimated time to complete the feature in hours", "rationale": "why you chose this feature and what evidence you have that it is needed or wanted", "pros": "the pros of implementing the new feature; i.e., who it benefits, what purpose it serves", "cons": "the cons of implementing the new feature, such as risks"}
+{"name": "the name of the feature", "description": "a description of the feature", "hours": "an estimated time to complete the feature in hours", "rationale": "why you chose this feature and what evidence you have that it is needed or wanted", "pros": "the pros of implementing the new feature; i.e., who it benefits, what purpose it serves", "cons": "the cons of implementing the new feature, such as risks"}
 
 Again, your answer should be a list of feature objects and MUST be valid JSON that can be converted to a JSON object using JSON.parse().
 
@@ -267,15 +266,7 @@ You should support your answer with as much detail and evidence from your notes 
       const jsonStartIndex = jsonString.indexOf("[");
       const strippedJsonString = jsonString.substring(jsonStartIndex);
       console.log(strippedJsonString);
-      const features: Feature[] = JSON.parse(strippedJsonString);
-      state.features = features.map((feature) => ({
-        name: feature.name,
-        description: feature.description,
-        hours: feature.hours,
-        rationale: feature.rationale,
-        pros: feature.pros,
-        cons: feature.cons,
-      }));
+      state.features = JSON.parse(strippedJsonString);
       return {
         agent: AgentType.PRD,
         external_prompt: {

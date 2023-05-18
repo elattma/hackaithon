@@ -6,7 +6,7 @@ export type Question = {
 export type Feature = {
   name: string;
   description: string;
-  hours: string;
+  hours: number;
   rationale: string;
   pros: string;
   cons: string;

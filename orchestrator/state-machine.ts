@@ -1,4 +1,4 @@
-import { ActionType, AgentType, State } from "@/orchestrator/model";
+import { AgentType, State } from "@/orchestrator/model";
 import { OpenAIApi } from "openai";
 import { PrdAgent } from "./prd-agent";
 import { ResearchAgent } from "./research-agent";
@@ -11,10 +11,14 @@ export async function* traverseState(
   api: OpenAIApi,
   state: State
 ): AsyncGenerator {
+  console.log("traverseState!", state);
   if (!api || !state || !state.next || state.next?.agent === AgentType.ERROR) {
     throw new Error("Invalid arguments");
   }
-  if (state.next.external_prompt) {
+  if (
+    state.next.external_prompt?.request &&
+    !state.next.external_prompt?.response
+  ) {
     return;
   }
 
@@ -37,15 +41,8 @@ export async function* traverseState(
     case AgentType.END:
       state.next = {
         agent: AgentType.END,
-        external_prompt: {
-          request: {
-            type: ActionType.ConfirmFeature,
-          },
-        },
       };
       yield encoder.encode(JSON.stringify(state));
-      console.log("Finished!");
-      console.log(state.next);
       return;
     default:
       state.next = {
@@ -54,6 +51,6 @@ export async function* traverseState(
       yield encoder.encode(JSON.stringify(state));
       return;
   }
-  console.log(state.next);
+  console.log("next state:", state);
   yield* traverseState(api, state);
 }
