@@ -210,7 +210,6 @@ export const PRD_STATE: State = {
     agent: AgentType.TICKETEER,
     external_prompt: {
       request: { type: ActionType.ConfirmPRD },
-      response: { type: ActionType.ConfirmPRD },
     },
   },
   questions: [

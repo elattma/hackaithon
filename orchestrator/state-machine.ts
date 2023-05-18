@@ -38,19 +38,17 @@ export async function* traverseState(
       state.next = await ticketeerAgent.act(state);
       yield encoder.encode(JSON.stringify(state));
       break;
-    case AgentType.END:
-      state.next = {
-        agent: AgentType.END,
-      };
-      yield encoder.encode(JSON.stringify(state));
-      return;
     default:
       state.next = {
         agent: AgentType.ERROR,
       };
-      yield encoder.encode(JSON.stringify(state));
-      return;
   }
   console.log("next state:", state);
+  if (
+    state.next.agent === AgentType.ERROR ||
+    state.next.agent === AgentType.END
+  ) {
+    return;
+  }
   yield* traverseState(api, state);
 }

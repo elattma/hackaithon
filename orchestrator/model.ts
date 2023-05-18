@@ -64,6 +64,10 @@ export type AuthActionParams = {
   accessToken: string;
 } & ActionParams;
 
+export type EditPrdParams = {
+  text: string;
+} & ActionParams;
+
 export type Action = {
   type: ActionType;
   params?: ActionParams;

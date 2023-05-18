@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserMessage } from "@/components/user-message";
 import { useStateContext } from "@/context/state";
-import { ActionType, AgentType, State } from "@/orchestrator/model";
+import {
+  ActionType,
+  AgentType,
+  EditPrdParams,
+  State,
+} from "@/orchestrator/model";
 import { useState } from "react";
 import { Tasks } from "./tasks";
 
@@ -93,10 +98,21 @@ export function Chat() {
           <Features features={state.features} />
         )}
         {state.prd === undefined ? null : (
-          <AgentThought
-            content={`Here is the Product Requirements Document:\n${state.prd}\nShould I create tickets and add them to linear? (y/n)`}
-          />
+          <>
+            <AgentThought content="Here is the Product Requirements Document:" />
+            <AgentThought content={state.prd} />
+            <AgentThought
+              content={`Type "confirm" to create the tickets or enter in how you would like me to edit your document`}
+            />
+          </>
         )}
+        {state.next?.agent === AgentType.PRD &&
+        state.next?.external_prompt?.response?.type ===
+          ActionType.ConfirmPRD ? (
+          <AgentThought
+            content={"Editing your Product Requirements Document accordingly."}
+          />
+        ) : null}
         {state.tasks === undefined ? null : <Tasks tasks={state.tasks} />}
         {state.tasks !== undefined && state.next?.agent === AgentType.END ? (
           <AgentThought content={"I've created the tickets in linear!"} />
@@ -146,16 +162,41 @@ export function Chat() {
               },
             };
           } else if (state.next.agent === AgentType.TICKETEER) {
-            if (input !== "y" && input !== "n") {
-              console.log("invalid input!");
-              return;
+            if (input === "confirm") {
+              newState = {
+                ...state,
+                next: {
+                  agent: AgentType.TICKETEER,
+                },
+              };
+            } else if (input === "stop") {
+              newState = {
+                ...state,
+                next: {
+                  agent: AgentType.END,
+                },
+              };
+            } else {
+              if (state.next?.external_prompt === undefined) {
+                console.log("invalid state!");
+                return;
+              }
+              newState = {
+                ...state,
+                next: {
+                  agent: AgentType.PRD,
+                  external_prompt: {
+                    request: state.next.external_prompt.request,
+                    response: {
+                      type: ActionType.ConfirmPRD,
+                      params: {
+                        text: input,
+                      } as EditPrdParams,
+                    },
+                  },
+                },
+              };
             }
-            newState = {
-              ...state,
-              next: {
-                agent: input === "y" ? AgentType.TICKETEER : AgentType.END,
-              },
-            };
           } else if (state.next.agent === AgentType.END) {
             return;
           }
