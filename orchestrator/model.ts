@@ -50,12 +50,17 @@ export enum ActionType {
   ProvideInput = "PROVIDE_INPUT",
   ConfirmFeature = "CONFIRM_FEATURE",
   ConfirmPRD = "CONFIRM_PRD",
+  AUTH = "AUTH",
 }
 
 export type ActionParams = {};
 
 export type ProvideInputActionParams = {
   input: string;
+} & ActionParams;
+
+export type AuthActionParams = {
+  accessToken: string;
 } & ActionParams;
 
 export type Action = {

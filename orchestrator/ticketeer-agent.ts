@@ -1,5 +1,13 @@
 import { Agent } from "@/orchestrator/agent";
-import { AgentType, Next, State, Task } from "@/orchestrator/model";
+import {
+  ActionType,
+  AgentType,
+  AuthActionParams,
+  Next,
+  State,
+  Task,
+} from "@/orchestrator/model";
+import { LinearClient } from "@linear/sdk";
 import { ChatCompletionRequestMessage } from "openai";
 
 const systemPrompt: ChatCompletionRequestMessage = {
@@ -48,7 +56,32 @@ export class TicketeerAgent extends Agent {
       return {
         agent: AgentType.TICKETEER,
       };
+    } else if (state.next?.external_prompt?.response === undefined) {
+      return {
+        agent: AgentType.TICKETEER,
+        external_prompt: {
+          request: {
+            type: ActionType.AUTH,
+          },
+        },
+      };
     } else {
+      const params = state.next.external_prompt.response
+        .params as AuthActionParams;
+      const linearClient = new LinearClient({
+        accessToken: params.accessToken,
+      });
+
+      for (const task of state.tasks) {
+        const issue = await linearClient.createIssue({
+          teamId: "team-id",
+          projectId: "project-id",
+          title: task.name || "",
+          description: task.description || "",
+        });
+        console.log("Created issue!", issue);
+      }
+
       return {
         agent: AgentType.END,
       };
