@@ -7,10 +7,7 @@ import { TicketeerAgent } from "./ticketeer-agent";
 const encoder = new TextEncoder();
 
 // TODO: make this sequential instead of recursive
-export async function* traverseState(
-  api: OpenAIApi,
-  state: State
-): AsyncGenerator {
+export async function* traverseState(api: OpenAIApi, state: State) {
   if (!api || !state || !state.next || state.next?.agent === AgentType.ERROR) {
     throw new Error("Invalid arguments");
   }
@@ -23,17 +20,17 @@ export async function* traverseState(
     case AgentType.RESEARCH:
       const researchAgent = new ResearchAgent(api);
       state.next = await researchAgent.act(state);
-      yield encoder.encode("Research Agent did something!");
+      yield encoder.encode(JSON.stringify(state));
       break;
     case AgentType.PRD:
       const prdAgent = new PrdAgent(api);
       state.next = await prdAgent.act(state);
-      yield encoder.encode("PRD Agent did something!");
+      yield encoder.encode(JSON.stringify(state));
       break;
     case AgentType.TICKETEER:
       const ticketeerAgent = new TicketeerAgent(api);
       state.next = await ticketeerAgent.act(state);
-      yield encoder.encode("Ticketeer Agent did something!");
+      yield encoder.encode(JSON.stringify(state));
       break;
     case AgentType.END:
       state.next = {
@@ -44,7 +41,6 @@ export async function* traverseState(
           },
         },
       };
-      yield encoder.encode("I'm finished!");
       yield encoder.encode(JSON.stringify(state));
       console.log("Finished!");
       console.log(state.next);
@@ -53,10 +49,9 @@ export async function* traverseState(
       state.next = {
         agent: AgentType.ERROR,
       };
-      yield encoder.encode("Something went wrong!");
       yield encoder.encode(JSON.stringify(state));
       return;
   }
   console.log(state.next);
-  yield* traverseState(api, state);
+  // yield* traverseState(api, state);
 }
