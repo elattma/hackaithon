@@ -12,6 +12,7 @@ import { getContext } from "@/orchestrator/mimo";
 
 export class ResearchAgent extends Agent {
   async act(state: State): Promise<Next> {
+    console.log("fandsjkfndasjkfndasjkfnkdsjnfkjds");
     if (state.input === undefined) {
       // ???
     } else if (state.questions === undefined) {
@@ -21,7 +22,8 @@ export class ResearchAgent extends Agent {
 You are very good at your job and you are trusted by the company to make incredible product decisions.
 Your ultimate goal is to come up with a valuable new feature for the company's product that is backed up by substantial data, research, and reasoning.
 You do not know anything about the company you are working for or its product, so you need to ask questions to find out more.
-Based on the message that the company has sent you below, come up with a numbered list of 10 questions that you need answered before you can come up with a new feature.`;
+Based on the message that the company has sent you below, come up with a numbered list of 6 questions that you need answered before you can come up with a new feature.
+Your questions should be simple and contain only one part, because you will have the opportunity to ask follow-up questions.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: systemMessageContent,
@@ -48,6 +50,7 @@ Based on the message that the company has sent you below, come up with a numbere
         agent: AgentType.RESEARCH,
       };
     } else if (state.questions.some((q) => q.answer === undefined)) {
+      console.log("I AM IN HERE");
       // Answer questions...
       const questions = state.questions;
 
@@ -125,7 +128,8 @@ ${formattedQuestions}`;
 You are very good at your job and you are trusted by the company to make incredible product decisions.
 Your ultimate goal is to come up with a valuable new feature for the company's product that is backed up by substantial data, research, and reasoning.
 You have already learned some information about the company and its product as reflected by the questions and answers provided above, but there is room to learn more.
-Based on the questions and answers provided above, come up with a numbered list of 10 follow up questions that go deeper into the explored topics.`;
+Based on the questions and answers provided above, come up with a numbered list of 6 follow up questions that go deeper into the explored topics.
+They should be simple, meaningful, and not have multiple parts.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: systemMessageContent,

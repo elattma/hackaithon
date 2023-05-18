@@ -54,5 +54,6 @@ export async function* traverseState(api: OpenAIApi, state: State) {
       yield encoder.encode(JSON.stringify(state));
       return;
   }
-  traverseState(api, state);
+  console.log(state);
+  yield* traverseState(api, state);
 }

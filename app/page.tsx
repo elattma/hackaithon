@@ -38,7 +38,7 @@ export default function Home() {
   }, [searchParams]);
 
   return (
-    <div className="container min-h-screen flex flex-col">
+    <div className="container min-h-screen max-h-screen flex flex-col">
       <Header />
       <Chat />
     </div>

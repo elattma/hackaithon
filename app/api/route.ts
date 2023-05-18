@@ -25,7 +25,7 @@ function iteratorToStream(iterator: any) {
 export async function POST(request: Request) {
   const body = await request.json();
   const { state: rawState, password } = body;
-  if (!password || password !== process.env.PASSWORD) {
+  if (!password || password !== process.env.TOP_SECRET_PASSWORD) {
     return NextResponse.json({ error: "invalid password" }, { status: 401 });
   }
   const state: State = rawState;
