@@ -13,7 +13,6 @@ import {
 
 export class ResearchAgent extends Agent {
   async act(state: State): Promise<Next> {
-    console.log("fandsjkfndasjkfndasjkfnkdsjnfkjds");
     if (state.input === undefined) {
       // ???
     } else if (state.questions === undefined) {
@@ -52,7 +51,6 @@ Your questions should be simple and contain only one part, because you will have
         agent: AgentType.RESEARCH,
       };
     } else if (state.questions.some((q) => q.answer === undefined)) {
-      console.log("I AM IN HERE");
       // Answer questions...
       const questions = state.questions;
 
@@ -74,7 +72,7 @@ If you cannot answer the question using the context, return "No answer found"`;
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: systemMessageContent,
       };
-      // Fire off requests to GPT-4 in parallel
+      // Fire off requests to GPT-3.5 in parallel
       for (let i = 0; i < questions.length; i++) {
         const question = questions[i];
         const context = contexts[i];
@@ -90,7 +88,7 @@ ${context}`;
           content: question.text,
         };
         const promise = this.openai.createChatCompletion({
-          model: "gpt-4",
+          model: "gpt-3.5-turbo",
           messages: [contextMessage, systemMessage, userMessage],
         });
         gpt4Promises.push(promise);
@@ -130,7 +128,7 @@ ${formattedQuestions}`;
 You are very good at your job and you are trusted by the company to make incredible product decisions.
 Your ultimate goal is to come up with a valuable new feature for the company's product that is backed up by substantial data, research, and reasoning.
 You have already learned some information about the company and its product as reflected by the questions and answers provided above, but there is room to learn more.
-Based on the questions and answers provided above, come up with a numbered list of 6 follow up questions that go deeper into the explored topics.
+Based on the questions and answers provided above, come up with a numbered list of 5 follow up questions that go deeper into the explored topics.
 They should be simple, meaningful, and not have multiple parts.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
@@ -184,7 +182,7 @@ If you cannot answer the question using the context, return "No answer found"`;
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: systemMessageContent,
       };
-      // Fire off requests to GPT-4 in parallel
+      // Fire off requests to GPT-3.5 in parallel
       for (let i = 0; i < questions.length; i++) {
         const question = questions[i];
         const context = contexts[i];
@@ -200,7 +198,7 @@ ${context}`;
           content: question.text,
         };
         const promise = this.openai.createChatCompletion({
-          model: "gpt-4",
+          model: "gpt-3.5-turbo",
           messages: [contextMessage, systemMessage, userMessage],
         });
         gpt4Promises.push(promise);
@@ -240,11 +238,14 @@ ${formatQuestions}`;
 You have conducted research into the company you are operating on behalf of and your notes about the company can be found above in the form of questions and answers.
 Using the information contained in these notes, you must identify features that can be added to the company's product.
 The features should be supported by your research and should improve an existing part of the company's product, address a problem with the product, or introduce something entirely new.
+The features should not be generic; they should be fit to the company's product and address specfic needs and gaps.
 Once you have thought of your features, you should return a list of features, represented by JSON objects.
 The JSON objects should have the following fields:
-{"name": "the name of the feature", "description": "a description of the feature", "estimated_hours": "an estimated time to complete the feature in hours", "pros": "the pros of implementing the new feature; i.e., who it benefits, what purpose it serves", "cons": "the cons of implementing the new feature, such as risks"}
+{"name": "the name of the feature", "description": "a description of the feature", "estimated_hours": "an estimated time to complete the feature in hours", "rationale": "why you chose this feature and what evidence you have that it is needed or wanted", "pros": "the pros of implementing the new feature; i.e., who it benefits, what purpose it serves", "cons": "the cons of implementing the new feature, such as risks"}
 
-Again, your answer should be a list of feature objects and MUST be valid JSON that can be converted to a JSON object using JSON.parse().`;
+Again, your answer should be a list of feature objects and MUST be valid JSON that can be converted to a JSON object using JSON.parse().
+
+You should support your answer with as much detail and evidence from your notes as possible.`;
       const systemMessage = {
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: systemMessageContent,

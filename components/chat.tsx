@@ -8,6 +8,7 @@ import { UserMessage } from "@/components/user-message";
 import { useStateContext } from "@/context/state";
 import { ActionType, AgentType, State } from "@/orchestrator/model";
 import { useState } from "react";
+import { Features } from "@/components/features";
 
 const decoder = new TextDecoder();
 
@@ -144,8 +145,8 @@ export function Chat() {
     const response = await fetch("http://localhost:3000/api", {
       method: "POST",
       body: JSON.stringify({
-        state: x,
-        password: "",
+        state: newState,
+        password: "mimo4aiagents",
       }),
     });
     if (!response.body) {
@@ -164,9 +165,6 @@ export function Chat() {
           const request = decodedState.next?.external_prompt?.request;
           if (decodedState.next?.agent === AgentType.END) {
             // you know you are done with your goal
-          }
-          if (request?.type === ActionType.ProvideInput) {
-            // todo: prompt to provide input
           } else if (request?.type === ActionType.ConfirmPRD) {
             // todo: prompt to confirm
           } else if (request?.type === ActionType.ConfirmFeature) {
@@ -188,8 +186,8 @@ export function Chat() {
   };
 
   return (
-    <main className="flex-1 overflow-y-auto my-4 rounded-sm border flex flex-col p-4">
-      <div className="flex flex-col flex-1 gap-4">
+    <main className="flex-1 overflow-y-auto my-4 rounded-sm border flex flex-col p-4 gap-4">
+      <div className="flex flex-col flex-1 gap-4 overflow-y-auto">
         <AgentMessage content="Hello! I'm Raina, your AI product manager. How can I help you?" />
         {state.input === undefined ? null : (
           <>
@@ -215,6 +213,12 @@ export function Chat() {
               ""
             )}`}
           />
+        )}
+        {state.followUpQuestions?.some((q) => q.answer === undefined) ? null : (
+          <AgentThought content="Found answers to my follow up questions... Synthesizing my knowledge and coming up with new features" />
+        )}
+        {state.features === undefined ? null : (
+          <Features features={state.features} />
         )}
       </div>
       <form
